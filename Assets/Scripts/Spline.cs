@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using UnityEngine;
 
+[ExecuteAlways]
 [RequireComponent(typeof(LineRenderer))]
 public class Spline : MonoBehaviour
 {
