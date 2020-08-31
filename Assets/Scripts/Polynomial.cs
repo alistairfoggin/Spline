@@ -40,4 +40,27 @@ public class Polynomial
 
         return new Polynomial(coeffs);
     }
+
+    public Polynomial calculateGeneralIntegral()
+    {
+        float[] coeffs = new float[Coefficients.Length + 1];
+        coeffs[0] = 0.0f;
+        for (int i = 1; i < coeffs.Length; i++)
+        {
+            float coefficient = Coefficients[i - 1];
+            coefficient /= (i);
+            coeffs[i] = coefficient;
+        }
+
+        return new Polynomial(coeffs);
+    }
+
+    public Polynomial calculateSpecificIntegral(Vector2 point)
+    {
+        Polynomial integral = calculateGeneralIntegral();
+        float y = integral.calculateValue(point.x);
+        integral.Coefficients[0] = point.y - y;
+
+        return integral;
+    }
 }
