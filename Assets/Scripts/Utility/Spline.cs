@@ -16,7 +16,7 @@ namespace Utility
         private Vector3[] _slopes = Array.Empty<Vector3>();
 
         // Update is called once per frame
-        void Update()
+        public void Update()
         {
             if (!_lineRenderer)
             {
