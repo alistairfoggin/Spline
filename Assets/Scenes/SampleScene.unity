@@ -168,9 +168,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   points:
   - {x: 0, y: 0, z: 0}
-  - {x: 2.2218041, y: 1.893507, z: 0.17476845}
+  - {x: 2, y: 2, z: 0}
   - {x: 2, y: 3, z: 0}
-  - {x: 0.35004735, y: 2.6779094, z: -0.5390425}
+  - {x: 1, y: 3, z: 0}
   - {x: -2, y: 1, z: 0}
   - {x: -2, y: 0, z: 0}
   subdivisions: 12
