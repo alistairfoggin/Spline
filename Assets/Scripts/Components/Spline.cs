@@ -1,29 +1,57 @@
 ﻿using System;
 using UnityEngine;
+using Utility;
 
-namespace Utility
+namespace Components
 {
     [ExecuteAlways]
-    [RequireComponent(typeof(LineRenderer))]
     public class Spline : MonoBehaviour
     {
         public Vector3[] points = Array.Empty<Vector3>();
-        [Range(1, 50)]
-        public int subdivisions = 5;
+        [Range(1, 50)] public int subdivisions = 5;
 
-        private LineRenderer _lineRenderer;
+        public Vector3[] VisiblePoints => _subPoints;
+
         private Vector3[] _subPoints;
         private Vector3[] _slopes = Array.Empty<Vector3>();
 
-        // Update is called once per frame
-        public void Update()
+        private Vector3[] _lastPoints = Array.Empty<Vector3>();
+        private int _lastSubdivisions;
+
+        private void Update()
         {
-            if (!_lineRenderer)
+            if (_lastSubdivisions != subdivisions)
             {
-                _lineRenderer = GetComponent<LineRenderer>();
-                _lineRenderer.loop = false;
+                _lastSubdivisions = subdivisions;
+                CalculateSubPoints();
             }
 
+            if (_lastPoints.Length != points.Length)
+            {
+                _lastPoints = points;
+                CalculateSubPoints();
+            }
+            else
+            {
+                bool isDifferent = false;
+                for (int i = 0; i < points.Length; i++)
+                {
+                    if (!_lastPoints[i].Equals(points[i]))
+                    {
+                        isDifferent = true;
+                        _lastPoints[i] = points[i];
+                    }
+                }
+
+                if (isDifferent)
+                {
+                    CalculateSubPoints();
+                }
+            }
+        }
+
+        public void CalculateSubPoints()
+        {
             if (_slopes.Length != points.Length)
             {
                 _slopes = new Vector3[points.Length];
@@ -50,17 +78,15 @@ namespace Utility
                 {
                     float t = 1.0f / subdivisions * j;
                     _subPoints[i * subdivisions + j] =
-                        new Vector3(fx.CalculateValue(t), fy.CalculateValue(t), fz.CalculateValue(t));
+                        new Vector3(fx.CalculateValue(t), fy.CalculateValue(t), fz.CalculateValue(t)) +
+                        transform.position;
                 }
             }
 
-            _subPoints[_subPoints.Length - 1] = points[points.Length - 1];
-
-            _lineRenderer.positionCount = _subPoints.Length;
-            _lineRenderer.SetPositions(AdjustPointsForPosition(_subPoints));
+            _subPoints[_subPoints.Length - 1] = points[points.Length - 1] + transform.position;
         }
 
-        Polynomial CalculatePolynomialOfIndexForAxis(int index, int axis)
+        private Polynomial CalculatePolynomialOfIndexForAxis(int index, int axis)
         {
             if (index >= points.Length - 1)
                 return null;
@@ -72,18 +98,6 @@ namespace Utility
             float d = 2 * (points[index][axis] - points[index + 1][axis]) + _slopes[index][axis] +
                       _slopes[index + 1][axis];
             return new Polynomial(new[] {a, b, c, d});
-        }
-
-        private Vector3[] AdjustPointsForPosition(Vector3[] thesePoints)
-        {
-            Vector3[] newPoints = new Vector3[thesePoints.Length];
-
-            for (int i = 0; i < thesePoints.Length; i++)
-            {
-                newPoints[i] = transform.position + thesePoints[i];
-            }
-
-            return newPoints;
         }
 
         private float CalculateSlopeAtIndexForAxis(int index, int axis)
